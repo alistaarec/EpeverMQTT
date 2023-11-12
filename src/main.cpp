@@ -59,6 +59,8 @@ String bmsV, bmsA, bmsSOC, bmsCap, bmsCycle, bmsTemp0, bmsTemp1, bmsTemp2,
       cell1, cell2, cell3, cell4, cell5, cell6, cell7, cell8;
 String uptime;
 
+float zerobms, zerocell;
+
 unsigned long read2loop = 5000;
 unsigned long read2loopOld = 0;
 
@@ -356,6 +358,7 @@ void readEPEnergyData() {
 void bmsLiveData() {
   bms.query_0x03_basic_info();
   bmsV = bms.get_voltage();
+  zerobms = bms.get_voltage();
   bmsA = bms.get_current();
   bmsCap = bms.get_balance_capacity();
   bmsCycle = bms.get_cycle_count();
@@ -369,6 +372,7 @@ void bmsLiveData() {
 void bmsCellData() {
   bms.query_0x04_cell_voltages();
   cell1 = bms.get_cell_voltage(0);
+  zerocell = bms.get_cell_voltage(0);
   cell2 = bms.get_cell_voltage(1);
   cell3 = bms.get_cell_voltage(2);
   cell4 = bms.get_cell_voltage(3);
@@ -385,7 +389,7 @@ void bmsCellData() {
   mqtt.publish("FVE/solarW",      solarW.c_str());
   mqtt.publish("FVE/mpptTemp",    mpptTemp.c_str());
   mqtt.publish("FVE/energyTotal", energyTotal.c_str());
-  if(bmsV != 0){
+  if(zerobms != 0){
     mqtt.publish("FVE/bmsV",        bmsV.c_str());
     mqtt.publish("FVE/bmsA",        bmsA.c_str());
     mqtt.publish("FVE/bmsCap",      bmsCap.c_str());
@@ -393,7 +397,7 @@ void bmsCellData() {
     mqtt.publish("FVE/bmsSOC",      bmsSOC.c_str());
   }
   
-  if(cell1 != 0) {
+  if(zerocell != 0) {
     mqtt.publish("FVE/cell1",       cell1.c_str());
     mqtt.publish("FVE/cell2",       cell2.c_str());
     mqtt.publish("FVE/cell3",       cell3.c_str());
