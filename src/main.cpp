@@ -355,7 +355,6 @@ void readEPEnergyData() {
 
 void bmsLiveData() {
   bms.query_0x03_basic_info();
-
   bmsV = bms.get_voltage();
   bmsA = bms.get_current();
   bmsCap = bms.get_balance_capacity();
@@ -369,7 +368,6 @@ void bmsLiveData() {
 
 void bmsCellData() {
   bms.query_0x04_cell_voltages();
-  delay(5);
   cell1 = bms.get_cell_voltage(0);
   cell2 = bms.get_cell_voltage(1);
   cell3 = bms.get_cell_voltage(2);
@@ -387,19 +385,25 @@ void bmsCellData() {
   mqtt.publish("FVE/solarW",      solarW.c_str());
   mqtt.publish("FVE/mpptTemp",    mpptTemp.c_str());
   mqtt.publish("FVE/energyTotal", energyTotal.c_str());
-  mqtt.publish("FVE/bmsV",        bmsV.c_str());
-  mqtt.publish("FVE/bmsA",        bmsA.c_str());
-  mqtt.publish("FVE/bmsCap",      bmsCap.c_str());
-  mqtt.publish("FVE/bmsCycle",    bmsCycle.c_str());
-  mqtt.publish("FVE/bmsSOC",      bmsSOC.c_str());
-  mqtt.publish("FVE/cell1",       cell1.c_str());
-  mqtt.publish("FVE/cell2",       cell2.c_str());
-  mqtt.publish("FVE/cell3",       cell3.c_str());
-  mqtt.publish("FVE/cell4",       cell4.c_str());
-  mqtt.publish("FVE/cell5",       cell5.c_str());
-  mqtt.publish("FVE/cell6",       cell6.c_str());
-  mqtt.publish("FVE/cell7",       cell7.c_str());
-  mqtt.publish("FVE/cell8",       cell8.c_str());
+  if(bmsV != 0){
+    mqtt.publish("FVE/bmsV",        bmsV.c_str());
+    mqtt.publish("FVE/bmsA",        bmsA.c_str());
+    mqtt.publish("FVE/bmsCap",      bmsCap.c_str());
+    mqtt.publish("FVE/bmsCycle",    bmsCycle.c_str());
+    mqtt.publish("FVE/bmsSOC",      bmsSOC.c_str());
+  }
+  
+  if(cell1 != 0) {
+    mqtt.publish("FVE/cell1",       cell1.c_str());
+    mqtt.publish("FVE/cell2",       cell2.c_str());
+    mqtt.publish("FVE/cell3",       cell3.c_str());
+    mqtt.publish("FVE/cell4",       cell4.c_str());
+    mqtt.publish("FVE/cell5",       cell5.c_str());
+    mqtt.publish("FVE/cell6",       cell6.c_str());
+    mqtt.publish("FVE/cell7",       cell7.c_str());
+    mqtt.publish("FVE/cell8",       cell8.c_str());
+  }
+
 }
 
 void loop() {
@@ -407,9 +411,7 @@ void loop() {
 
   if (millis() - read2loopOld > read2loop) {   //Every 2 sec
     readEPliveData();
-    delay(5);
     bmsLiveData();
-    delay(5);
     bmsCellData();
     uptime = uptime_formatter::getUptime();
     readEPTempData();
@@ -418,7 +420,7 @@ void loop() {
 
   if(millis() - read10loopOld > read10loop) {  //Every 10 sec
     
-    delay(5);
+    
 
     if (mqtt.connected()) {
         mqttupdate();
@@ -436,7 +438,6 @@ void loop() {
 
   if(millis() - read60loopOld > read60loop) {
     readEPEnergyData();
-    delay(5);
     read60loopOld = millis();
   }
 }
